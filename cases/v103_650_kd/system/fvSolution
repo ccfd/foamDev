@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+	preconditioner	DIC;
+        tolerance       1e-8;
+        relTol          0.001;
+//        smoother        GaussSeidel;
+    }
+
+    "(U|k|omega)"
+    {
+        solver          smoothSolver;
+//        preconditioner        DILU;
+	smoother	GaussSeidel;
+        tolerance       1e-7;
+        relTol          0.01;
+//        maxIter         10;
+    }
+
+    yPsi
+    {
+	solver		GAMG;
+	smoother	GaussSeidel;
+	cacheAgglomeration	true;
+	nCellsInCoarsestLevel 10;
+	agglomerator	faceAreaPair;
+	mergeLevels	1;
+	tolerance	1e-6;
+	relTol		0.01;
+    }
+
+    yWall
+    {
+        solver          GAMG;
+        smoother        symGaussSeidel;
+        cacheAgglomeration      true;
+        nCellsInCoarsestLevel 50;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+        tolerance       1e-6;
+        relTol          0.1;
+
+    }
+
+
+}
+
+SIMPLE
+{
+    consistent      yes;
+    nOrthogonalCorrectors 1;
+    residualControl
+    {
+        p               1e-8;
+        U               1e-8;
+        "(k|omega)" 1e-8;
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        p            0.3;
+	U	0.7;
+	omega	 0.4;
+	k	0.4;
+	yWall		0.7;
+    }
+}
+
+
+// ************************************************************************* //

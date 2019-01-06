@@ -1,0 +1,86 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 437.45;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    plate
+    {
+        type            codedFixedValue;
+        value           uniform 1e-3;
+
+	redirectType	fixedValue;
+
+	code
+	#{
+		
+//		const fvPatch& boundaryPatch = patch();
+//		const scalarField& Cf = boundaryPatch.Cf();
+//		scalarField& field = *this;
+//
+		scalar nu = 1.5e-05;
+		scalar betaZero = 0.0708;
+		scalar ywall = 2.81258e-05;
+		
+//		fixedValueFvPatchScalarField myPatch(*this);
+//
+//		forAll(this->patch().Cf(), faceI)
+//		{
+//			myPatch[faceI] = Foam::scalar( 6 * nu / (betaZero * ywall * ywall));
+//		}
+//		(this*)==(myPatch);
+//
+
+		const scalar omegaBC = 6* nu / (betaZero * ywall * ywall);
+		operator==(omegaBC);
+		
+
+	#};
+
+    }
+
+    above
+    {
+        type            zeroGradient;
+    }
+
+    top
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

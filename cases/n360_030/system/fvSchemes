@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         cellMDLimited Gauss linear 0.5;
+    grad(U)         cellMDLimited Gauss linear 0.5;
+}
+
+divSchemes
+{
+    default             none;
+
+//    div(phi,U)          bounded Gauss linearUpwind grad;
+    div(phi,U)          Gauss linearUpwind grad(U);
+    div(phi,k)          bounded Gauss linearUpwind default;
+    div(phi,omega)      bounded Gauss linearUpwind default;
+
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    div(yPhi,yWall)	bounded Gauss linearUpwind grad;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear limited 0.5;
+    laplacian(yPsi) Gauss linear corrected;
+    laplacian(yWall) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         limited 1.0;
+}
+
+// wallDist
+// {
+//     method          meshWave;
+
+//     // Optionally correct distance from near-wall cells to the boundary
+//     correctWalls    true;
+// }
+
+wallDist
+{
+    method advectionDiffusion;
+    nRequired false;
+    advectionDiffusionCoeffs
+    {
+	method Poisson;
+	epsilon 0.05;
+	tolerance 1e-4;
+	maxIter 200;
+
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,123 @@
+
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+Phi
+{
+	solver GAMG;
+	smoother DIC;
+	cacheAgglomeration on;
+	agglomerator faceAreaPair;
+	nCellsInCoarsestLevel 1000;
+	mergeLevels 1;
+	tolerance 1e-06;
+	relTol 0.01;
+	}
+
+
+    p
+    {
+        solver          GAMG;
+//	preconditioner	DIC;
+        tolerance       1e-8;
+        relTol          0.001;
+	minIter		3;
+        smoother        GaussSeidel;
+    }
+
+    U
+    {
+	solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-7;
+        relTol          0.1;
+//        minIter         5;
+    }
+    
+    "(k|omega)"
+    {
+        solver          smoothSolver;
+//        preconditioner  DILU;
+	smoother	GaussSeidel;
+	nSweeps		3;
+        tolerance       1e-7;
+        relTol          0.01;
+//        minIter         5;
+    }
+	
+    yPsi
+    {
+	solver		GAMG;
+	smoother	GaussSeidel;
+	cacheAgglomeration	true;
+	nCellsInCoarsestLevel 10;
+	agglomerator	faceAreaPair;
+	mergeLevels	1;
+	tolerance	1e-6;
+	relTol		0.01;
+    }
+
+    yWall
+    {
+        solver          GAMG;
+        smoother        symGaussSeidel;
+        cacheAgglomeration      true;
+        nCellsInCoarsestLevel 50;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+        tolerance       1e-6;
+        relTol          0.1;
+
+    }
+
+
+}
+
+SIMPLE
+{
+    consistent      yes;
+    nNonOrthogonalCorrectors 1;
+    residualControl
+    {
+        p               1e-8;
+        U               1e-8;
+        "(k|omega)" 1e-8;
+    }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        p        0.2;
+	U	 0.3;
+	omega	 0.01;
+	k	 0.01;
+	yWall	 0.7;
+    }
+}
+
+
+// ************************************************************************* //
