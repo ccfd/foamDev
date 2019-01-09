@@ -30,11 +30,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "fvCFD.H"
+//#include "fvPatchFields.H"
+//#include "volFields.H"
+//#include "meshTools.H"
+//#include "fvOptions.H"
+//#include "Vector.H"
 
 using namespace Foam;
 
 class shapeFactor
 {
+private:
+    //word approximationType_;
+
+
+
 public:
     int id;
 
@@ -42,14 +52,41 @@ public:
     {
         Info << "shapeFactor has object has been constructed" << endl;
         id = 1;
+
     }
+
+    ~shapeFactor()
+    {}
+};
+
+
+class boundaryLayer
+{
+private:
+    word patchName;
+
+
+
 
 
 };
 
 
+
 int main(int argc, char *argv[])
 {
+    #include "setRootCase.H" // reads and checks OF folder structure
+    #include "createTime.H" // creates a time format based on folder structure
+    #include "createMesh.H" // creates mesh based on constant/polyMeshs
+
+    int meshSize_ = mesh.C().size;
+
+
+
+
+
+
+
     shapeFactor obj1;
     Info << "the id is:" << obj1.id << endl;
 
