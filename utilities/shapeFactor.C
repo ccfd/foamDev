@@ -30,6 +30,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "fvCFD.H"
+#include "IOobject.H"
 //#include "fvPatchFields.H"
 //#include "volFields.H"
 //#include "meshTools.H"
@@ -78,13 +79,12 @@ int main(int argc, char *argv[])
     #include "setRootCase.H" // reads and checks OF folder structure
     #include "createTime.H" // creates a time format based on folder structure
     #include "createMesh.H" // creates mesh based on constant/polyMeshs
-
+    #include "OFstream.H"
     Info << "Reading mesh data..." << endl;
     
 
     // Evaluating ID of the desired patch
     const word patch_name("plate");
-    double dx = 0.001;
     label patch_ID(0);
     patch_ID = mesh.boundaryMesh().findPatchID(patch_name);
 
@@ -114,43 +114,100 @@ int main(int argc, char *argv[])
 		mesh
 	);
 
-    Info << "...done." << endl;
+    Info << "done." << endl;
 
-    Info<< "Reading field vorticity...\n" << endl;
-	volVectorField vorticity // note that velocity is a vector field
-	(
-		IOobject
-		(
-		    "vorticity",
-		    runTime.timeName(),
-		    mesh,
-		    IOobject::MUST_READ,
-		    IOobject::AUTO_WRITE
-		),
-		mesh
-	);
+    // Find maximum vorticity values
+    tmp<volTensorField> tgradU(fvc::grad(U));
+    const volTensorField& gradU = tgradU();
 
-    Info << "...done." << endl;
+    volTensorField vorticity_tensor(skew(gradU));
+    volScalarField vorticity_mag = pow(2 * vorticity_tensor && vorticity_tensor, 0.5);
+    fvPatchField<double> vorticity_max = vorticity_mag.boundaryField()[patch_ID];
+    Info << "Maximum vorticity value: " << max(vorticity_max) << "  1/s" << endl;
     
+    // Initialize containers for data
+
+    // IOdictionary boundaryLayer
+    // (
+    //     IOobject
+    //     (
+    //         "boundaryLayer",
+    //         runTime.timeName(),
+    //         runTime,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     )
+    // );
+
+    List<point> boundary_layer_edge = patch_face_centres;
+    scalar eps = 0.01; // scaling factor for rotation rate magnitude tensor
+    scalar dx = 0.001;
+    vector position(0.0, 0.0, 0.0);
+    vector normal_vector(0.0, 0.0, 0.0);
+    label assigned_cell; 
+    scalar vorticity_cell;
+
+    //fileName outputFile("boundaryLayey.txt");
+    //OFstream os(runTime.timeName()/outputFile);
+
+    fileName outputFile1("boundary.txt");
+    OFstream os(runTime.timeName()/outputFile1);
+    os << "This is the first line in the file.\n";
+
+    // Iterate 
     while (runTime.loop())
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        if(runTime.outputTime())
+        {
+            Info << "Time = " << runTime.timeName() << nl << endl;
+            //vorticity.write();
+            //for (label faceI = mesh.boundary()[patch_ID].start(); faceI < mesh.C().size(); cellI++)
+            forAll(mesh.boundary()[patch_ID].Cf(), iter)
+            {
+                bool convergence = false;
 
-		// Loop over all cells in the mesh and calculate the pressure value.
-		for (label cellI=0; cellI<mesh.C().size(); cellI++)
-		{
-			// cellI describes a series of integers, each corresponding to an index of an individual cell in the grid.
+                while (!convergence)
+                {
+                    position = boundary_layer_edge[iter];
+                    normal_vector = patch_face_nvectors[iter];
+                    position = position - dx * normal_vector;
+                    assigned_cell = mesh.findCell(position);
+                    vorticity_cell = vorticity_mag[assigned_cell];
+                    boundary_layer_edge[iter] = position;
 
-			// Call the method and compute p.
-			// Note how mesh.C() and p elements are accessed by using the [] operators, as in a regular C array.
-			// .value() is also called to convert the time to a dim-less scalar
-			p[cellI] = calculatePressure(runTime.time().value(), mesh.C()[cellI], originVector, rFarCell);
+                    if (vorticity_cell < eps * vorticity_max[iter])
+                    {
+                        
+                        os << boundary_layer_edge[iter];
+                        os << endl;
+                        convergence = true;
+                    }
 
-            // NOTE: it is also possbile to interact with boundary face values, but
-            // this will be addressed in a separate tutorial.
-		}
+
+                    //Ui = Uinterp->interpolate(position, cellI);
+                    
+
+
+                }
+                
+                //label cellI = mesh.findCell();
+                //vector Ui = Uinterp->interpolate(pos, cellI);
+
+            }
+
+            //boundaryLayer.set("boundary_layer_coordinates",boundary_layer_edge);
+            //boundaryLayer.Foam::regIOobject::write();
+
+            
+        }
     }
 
+    
+
+    
+    
+
     Info << "End\n" << endl;
+
 
 }
