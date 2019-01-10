@@ -79,16 +79,78 @@ int main(int argc, char *argv[])
     #include "createTime.H" // creates a time format based on folder structure
     #include "createMesh.H" // creates mesh based on constant/polyMeshs
 
-    int meshSize_ = mesh.C().size;
+    Info << "Reading mesh data..." << endl;
+    
 
+    // Evaluating ID of the desired patch
+    const word patch_name("plate");
+    double dx = 0.001;
+    label patch_ID(0);
+    patch_ID = mesh.boundaryMesh().findPatchID(patch_name);
 
+    // Loading mesh data belonging to the patch
+    const polyPatch& patch_data = mesh.boundaryMesh()[patch_ID];
+    int n_patch_faces = mesh.boundary()[patch_ID].Cf().size();
+    
+    //const vectorField& patch_faces = mesh.boundary()[patch_ID].Cf();
+    const List<point>& patch_face_centres = mesh.boundaryMesh()[patch_ID].faceCentres();
+    const List<point>& patch_face_nvectors = mesh.boundary()[patch_ID].Sf();
+    
+    Info << "finished" << endl;
+    Info << "Patch " << patch_name << " has " << n_patch_faces << " faces." << endl;
 
+    // Loading velocity and vorticity field
+    Info << "Reading velocity field ..." ;
+    volVectorField U // note that velocity is a vector field
+	(
+		IOobject
+		(
+		    "U",
+		    runTime.timeName(),
+		    mesh,
+		    IOobject::MUST_READ,
+		    IOobject::AUTO_WRITE
+		),
+		mesh
+	);
 
+    Info << "...done." << endl;
 
+    Info<< "Reading field vorticity...\n" << endl;
+	volVectorField vorticity // note that velocity is a vector field
+	(
+		IOobject
+		(
+		    "vorticity",
+		    runTime.timeName(),
+		    mesh,
+		    IOobject::MUST_READ,
+		    IOobject::AUTO_WRITE
+		),
+		mesh
+	);
 
+    Info << "...done." << endl;
+    
+    while (runTime.loop())
+    {
+        Info<< "Time = " << runTime.timeName() << nl << endl;
 
-    shapeFactor obj1;
-    Info << "the id is:" << obj1.id << endl;
+		// Loop over all cells in the mesh and calculate the pressure value.
+		for (label cellI=0; cellI<mesh.C().size(); cellI++)
+		{
+			// cellI describes a series of integers, each corresponding to an index of an individual cell in the grid.
 
+			// Call the method and compute p.
+			// Note how mesh.C() and p elements are accessed by using the [] operators, as in a regular C array.
+			// .value() is also called to convert the time to a dim-less scalar
+			p[cellI] = calculatePressure(runTime.time().value(), mesh.C()[cellI], originVector, rFarCell);
+
+            // NOTE: it is also possbile to interact with boundary face values, but
+            // this will be addressed in a separate tutorial.
+		}
+    }
+
+    Info << "End\n" << endl;
 
 }
