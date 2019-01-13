@@ -31,6 +31,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "fvCFD.H"
 #include "IOobject.H"
+#include "interpolationCellPoint.H"
 //#include "fvPatchFields.H"
 //#include "volFields.H"
 //#include "meshTools.H"
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
     #include "createMesh.H" // creates mesh based on constant/polyMeshs
     #include "OFstream.H"
     Info << "Reading mesh data..." << endl;
-    
+    //const point sample = args.argRead<point>(1);
 
     // Evaluating ID of the desired patch
     const word patch_name("plate");
@@ -117,27 +118,6 @@ int main(int argc, char *argv[])
     Info << "done." << endl;
 
     // Find maximum vorticity values
-    tmp<volTensorField> tgradU(fvc::grad(U));
-    const volTensorField& gradU = tgradU();
-
-    volTensorField vorticity_tensor(skew(gradU));
-    volScalarField vorticity_mag = pow(2 * vorticity_tensor && vorticity_tensor, 0.5);
-    fvPatchField<double> vorticity_max = vorticity_mag.boundaryField()[patch_ID];
-    Info << "Maximum vorticity value: " << max(vorticity_max) << "  1/s" << endl;
-    
-    // Initialize containers for data
-
-    // IOdictionary boundaryLayer
-    // (
-    //     IOobject
-    //     (
-    //         "boundaryLayer",
-    //         runTime.timeName(),
-    //         runTime,
-    //         IOobject::NO_READ,
-    //         IOobject::AUTO_WRITE
-    //     )
-    // );
 
     List<point> boundary_layer_edge = patch_face_centres;
     scalar eps = 0.01; // scaling factor for rotation rate magnitude tensor
@@ -147,12 +127,8 @@ int main(int argc, char *argv[])
     label assigned_cell; 
     scalar vorticity_cell;
 
-    //fileName outputFile("boundaryLayey.txt");
-    //OFstream os(runTime.timeName()/outputFile);
-
     fileName outputFile1("boundary.txt");
-    OFstream os(runTime.timeName()/outputFile1);
-    os << "This is the first line in the file.\n";
+    
 
     // Iterate 
     while (runTime.loop())
@@ -160,8 +136,16 @@ int main(int argc, char *argv[])
         if(runTime.outputTime())
         {
             Info << "Time = " << runTime.timeName() << nl << endl;
-            //vorticity.write();
-            //for (label faceI = mesh.boundary()[patch_ID].start(); faceI < mesh.C().size(); cellI++)
+
+            OFstream os(runTime.timeName()/outputFile1);
+            os << "This is the first line in the file.\n";
+
+            volTensorField gradU = fvc::grad(U);
+            volTensorField vorticity_tensor(skew(gradU));
+            volScalarField vorticity_mag = pow(2 * vorticity_tensor && vorticity_tensor, 0.5);
+            fvPatchField<double> vorticity_max = vorticity_mag.boundaryField()[patch_ID];
+            interpolationCellPoint<scalar> vorticity_interp(vorticity_mag);
+
             forAll(mesh.boundary()[patch_ID].Cf(), iter)
             {
                 bool convergence = false;
@@ -172,7 +156,16 @@ int main(int argc, char *argv[])
                     normal_vector = patch_face_nvectors[iter];
                     position = position - dx * normal_vector;
                     assigned_cell = mesh.findCell(position);
-                    vorticity_cell = vorticity_mag[assigned_cell];
+                    if (assigned_cell == -1)
+                    {
+                        boundary_layer_edge[iter] = patch_face_centres[iter];
+                        Info << "Application failed to evaluate boundary layer edge" << endl;
+                        convergence = true;
+
+
+                    }
+
+                    vorticity_cell = vorticity_interp.interpolate(position, assigned_cell);
                     boundary_layer_edge[iter] = position;
 
                     if (vorticity_cell < eps * vorticity_max[iter])
@@ -184,25 +177,14 @@ int main(int argc, char *argv[])
                     }
 
 
-                    //Ui = Uinterp->interpolate(position, cellI);
-                    
-
-
                 }
                 
-                //label cellI = mesh.findCell();
-                //vector Ui = Uinterp->interpolate(pos, cellI);
 
             }
 
-            //boundaryLayer.set("boundary_layer_coordinates",boundary_layer_edge);
-            //boundaryLayer.Foam::regIOobject::write();
-
             
         }
-    }
-
-    
+    }   
 
     
     
