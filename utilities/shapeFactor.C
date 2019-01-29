@@ -31,6 +31,7 @@ License
 #include "fvCFD.H"
 #include "IOobject.H"
 #include "interpolationCellPoint.H"
+#include "boundaryLayer.H"
 //#include "fvPatchFields.H"
 //#include "volFields.H"
 //#include "meshTools.H"
@@ -38,41 +39,6 @@ License
 //#include "Vector.H"
 
 using namespace Foam;
-
-class shapeFactor
-{
-private:
-    //word approximationType_;
-
-
-
-public:
-    int id;
-
-    shapeFactor()
-    {
-        Info << "shapeFactor has object has been constructed" << endl;
-        id = 1;
-
-    }
-
-    ~shapeFactor()
-    {}
-};
-
-
-class boundaryLayer
-{
-private:
-    word patchName;
-
-
-
-
-
-
-};
-
 
 
 int main(int argc, char *argv[])
@@ -97,6 +63,8 @@ int main(int argc, char *argv[])
     
     Info << "finished" << endl;
     Info << "Patch " << patch_name << " has " << n_patch_faces << " faces." << endl;
+//    fvMesh elo = mesh.clone() const;
+//    boundaryLayer boundaryLayer(elo, patch_name);
 
     // Loading velocity and vorticity field
     Info << "Reading velocity field ..." ;
@@ -107,7 +75,7 @@ int main(int argc, char *argv[])
 		    "U",
 		    runTime.timeName(),
 		    mesh,
-		    IOobject::MUST_READ,
+            IOobject::MUST_READ,
 		    IOobject::AUTO_WRITE
 		),
 		mesh
@@ -117,83 +85,83 @@ int main(int argc, char *argv[])
 
     // Find maximum vorticity values
 
-    List<point> boundary_layer_edge = patch_face_centres;
-    Field<scalar> U_mean = mag(U.boundaryField()[patch_ID]);
-    List<scalar> momentum_thickness;
-    List<scalar> displacement_thickness;
-    scalar eps = 0.01; // scaling factor for rotation rate magnitude tensor
-    scalar dx = 0.001;
-    scalar l = 0.0;
-    vector position(0.0, 0.0, 0.0);
-    vector normal_vector(0.0, 0.0, 0.0);
-    label assigned_cell; 
-    scalar vorticity_cell;
-    vector U_cell;
-    scalar U_mag = 0.0;
+//    List<point> boundary_layer_edge = patch_face_centres;
+//    Field<scalar> U_mean = mag(U.boundaryField()[patch_ID]);
+//    List<scalar> momentum_thickness;
+//    List<scalar> displacement_thickness;
+//    scalar eps = 0.01; // scaling factor for rotation rate magnitude tensor
+//    scalar dx = 0.001;
+//    scalar l = 0.0;
+//    vector position(0.0, 0.0, 0.0);
+//    vector normal_vector(0.0, 0.0, 0.0);
+//    label assigned_cell;
+//    scalar vorticity_cell;
+//    vector U_cell;
+//    scalar U_mag = 0.0;
 
-    // Iterate 
-    while (runTime.loop())
-    {
-        if(runTime.outputTime())
-        {
-            Info << "Time = " << runTime.timeName() << nl << endl;
-            fileName outputFile1("boundary.txt");
-            OFstream os(runTime.timeName()/outputFile1);
-            os << "This is the first line in the file.\n";
+//    // Iterate
+//    while (runTime.loop())
+//    {
+//        if(runTime.outputTime())
+//        {
+//            Info << "Time = " << runTime.timeName() << nl << endl;
+//            fileName outputFile1("boundary.txt");
+//            OFstream os(runTime.timeName()/outputFile1);
+//            os << "This is the first line in the file.\n";
 
-            volTensorField gradU = fvc::grad(U);
-            volTensorField vorticity_tensor(skew(gradU));
-            volScalarField vorticity_mag = pow(2 * vorticity_tensor && vorticity_tensor, 0.5);
-            fvPatchField<double> vorticity_max = vorticity_mag.boundaryField()[patch_ID];
-            interpolationCellPoint<scalar> vorticity_interp(vorticity_mag);
-            interpolationCellPoint<vector> U_interp(U);
+//            volTensorField gradU = fvc::grad(U);
+//            volTensorField vorticity_tensor(skew(gradU));
+//            volScalarField vorticity_mag = pow(2 * vorticity_tensor && vorticity_tensor, 0.5);
+//            fvPatchField<double> vorticity_max = vorticity_mag.boundaryField()[patch_ID];
+//            interpolationCellPoint<scalar> vorticity_interp(vorticity_mag);
+//            interpolationCellPoint<vector> U_interp(U);
 
-            forAll(mesh.boundary()[patch_ID].Cf(), iter)
-            {
-                bool convergence = false;
+//            forAll(mesh.boundary()[patch_ID].Cf(), iter)
+//            {
+//                bool convergence = false;
 
-                // evaluating average velocity (assuming compressible flow)
+//                // evaluating average velocity (assuming compressible flow)
 
-                while (!convergence)
-                {
-                    position = boundary_layer_edge[iter];
-                    normal_vector = patch_face_nvectors[iter];
-                    position = position - dx * normal_vector;
-                    assigned_cell = mesh.findCell(position);
+//                while (!convergence)
+//                {
+//                    position = boundary_layer_edge[iter];
+//                    normal_vector = patch_face_nvectors[iter];
+//                    position = position - dx * normal_vector;
+//                    assigned_cell = mesh.findCell(position);
 
-                    if (mesh.findCell(position))
-                    {
-                        boundary_layer_edge[iter] = patch_face_centres[iter];
-                        Info << "Application failed to evaluate average velocity" << endl;
-                        convergence = true;
-                        break;
-                    }
+//                    if (mesh.findCell(position))
+//                    {
+//                        boundary_layer_edge[iter] = patch_face_centres[iter];
+//                        Info << "Application failed to evaluate average velocity" << endl;
+//                        convergence = true;
+//                        break;
+//                    }
                     
                     
-                    U_cell = U_interp.interpolate(position, assigned_cell);
-                    U_mag = U_mag + mag(U_cell) * dx;
-                    l = l + dx;
+//                    U_cell = U_interp.interpolate(position, assigned_cell);
+//                    U_mag = U_mag + mag(U_cell) * dx;
+//                    l = l + dx;
 
-                    //vorticity_cell = vorticity_interp.interpolate(position, assigned_cell);
-                    //boundary_layer_edge[iter] = position;
+//                    //vorticity_cell = vorticity_interp.interpolate(position, assigned_cell);
+//                    //boundary_layer_edge[iter] = position;
 
-                    // if (vorticity_cell < eps * vorticity_max[iter])
-                    // {
+//                    // if (vorticity_cell < eps * vorticity_max[iter])
+//                    // {
                         
-                    //     os << boundary_layer_edge[iter];
-                    //     os << endl;
-                    //     convergence = true;
-                    // }
+//                    //     os << boundary_layer_edge[iter];
+//                    //     os << endl;
+//                    //     convergence = true;
+//                    // }
 
 
-                }
+//                }
 
-                U_mean[iter] = U_mag / l;
-                U_mag = 0;
-                l = 0;
-                Info << U_mean[iter] << endl;
+//                U_mean[iter] = U_mag / l;
+//                U_mag = 0;
+//                l = 0;
+//                Info << U_mean[iter] << endl;
 
-            }
+//            }
 
             // forAll(mesh.boundary()[patch_ID].Cf(), iter)
             // {
@@ -234,8 +202,8 @@ int main(int argc, char *argv[])
 
 
             
-        }
-    }   
+//        }
+//    }
 
     
     
