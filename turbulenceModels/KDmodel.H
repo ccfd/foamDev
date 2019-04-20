@@ -248,9 +248,9 @@ public:
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// #ifdef NoRepository
-// #   include "KDmodel.C"
-// #endif
+ #ifdef NoRepository
+ #   include "KDmodel.C"
+ #endif
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #endif

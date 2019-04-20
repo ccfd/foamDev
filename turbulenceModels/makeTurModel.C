@@ -35,5 +35,5 @@
 #include "KDmodel.H"
 makeRASModel(KDmodel);
 
-#include "kOmega2008.H"
-makeRASModel(kOmega2008);
+//#include "kOmega2008.H"
+//makeRASModel(kOmega2008);
