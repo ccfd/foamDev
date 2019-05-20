@@ -1,0 +1,167 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1806                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+/* ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ //
+| Mesh No. | Grading     | y+ | Number of cells |
+| 1        | (1 1 4000) |    | 90000           |
+
+Mesh stats
+    points:           181202
+    faces:            360600
+    internal faces:   179400
+    cells:            90000
+    faces per cell:   6
+    boundary patches: 5
+   
+Overall number of cells of each type:
+    hexahedra:     90000
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points   Surface topology                  
+    BA                  300      602      ok (non-closed singly connected)  
+    DC                  300      602      ok (non-closed singly connected)  
+    CB                  300      602      ok (non-closed singly connected)  
+    AD                  300      602      ok (non-closed singly connected)  
+    frontAndBack        180000   181202   ok (non-closed singly connected)  
+
+Checking geometry...
+    Overall domain bounding box (0.06 0 -0.001) (0.3 0.04 0.001)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (5.14635e-18 -5.76938e-17 1.48269e-15) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 5827.51, number of cells 14426
+  <<Writing 14426 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 1.09641e-10. Maximum face area = 2.18918e-06.  Face area magnitudes OK.
+    Min volume = 2.19283e-13. Max volume = 1.74988e-09.  Total volume = 1.44e-05.  Cell volumes OK.
+    Mesh non-orthogonality Max: 4.69876 average: 1.16151
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.120211 OK.
+    Coupled point location match (average 0) OK.
+
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ */
+
+
+vertices    //For point description see cases.org
+(
+    (0.06   0       0.001) //A -- 0
+    (0.06   0      -0.001) //A'-- 1
+    (0.3    0       0.001) //D -- 2
+    (0.3    0      -0.001) //D'-- 3
+    (0.3    0.04    0.001) //C -- 4
+    (0.3    0.04   -0.001) //C'-- 5
+    (0.06   0.01    0.001) //B -- 6
+    (0.06   0.01   -0.001) //B`-- 7
+
+    // (0.05   0       0.001) //Z -- 8
+    // (0.05   0      -0.001) //Z'-- 9
+    // (0.05   0.01    0.001) //Y -- 10
+    // (0.05   0.01   -0.001) //Y'-- 11
+);
+
+blocks
+(
+    hex (0 2 3 1 6 4 5 7) (200 1 80) simpleGrading (10 1 200)
+    // hex (8 0 1 9 10 6 7 11) (30 1 80) simpleGrading (1 1 200)
+);
+
+edges
+(
+);
+
+
+boundary
+(
+    BA
+    {
+        type patch;
+        faces
+        (
+            (0 6 7 1)
+        );
+    }
+
+    // Upper
+    // {
+    //     type patch;
+    //     faces
+    //     (
+    //         (11 7 6 10)
+    //     );
+    // }
+
+    // Lower
+    // {
+    //     type patch;
+    //     faces
+    //     (
+    //         (8 0 1 9)
+    //     );
+    // }
+
+    DC
+    {
+        type patch;
+        faces
+        (
+            (3 5 4 2)
+        );
+    }
+    CB
+    {
+        type patch;
+        faces
+        (   
+            (4 5 7 6)
+        );
+    }
+    AD
+    {
+        type wall;
+        faces
+        (
+            (0 1 3 2)
+        );
+    }
+
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 2 4 6)
+            (1 7 5 3)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
+
+
+
+
