@@ -1,3 +1,0 @@
-makeTurModel.C
-
-LIB = $(FOAM_USER_LIBBIN)/libKDmodel

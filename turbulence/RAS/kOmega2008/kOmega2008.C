@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "kOmega.H"
+#include "kOmega2008.H"
 #include "fvOptions.H"
 #include "bound.H"
 

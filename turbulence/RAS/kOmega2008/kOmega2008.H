@@ -8,6 +8,8 @@
 Info: OpenFOAM implementation supplemented with cross-diffusion and other features
 of the latest k-omega turbulence model.
 
+Author:
+    Robert Tykocki-Crow (r.tykocki.crow@gmail.com)
 \*---------------------------------------------------------------------------*/
 
 #ifndef kOmega2008_H
@@ -169,9 +171,9 @@ public:
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// #ifdef NoRepository
-//     #include "kOmega2008.C"
-// #endif
+#ifdef NoRepository
+    #include "kOmega2008.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

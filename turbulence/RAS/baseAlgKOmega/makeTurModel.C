@@ -32,8 +32,7 @@
      makeTemplatedTurbulenceModel                                               \
      (transportModelIncompressibleTurbulenceModel, LES, Type)
 
-#include "KDmodel.H"
-makeRASModel(KDmodel);
+#include "BaseAlgKOmega.H"
+makeRASModel(BaseAlgKOmega);
 
-//#include "kOmega2008.H"
-//makeRASModel(kOmega2008);
+
