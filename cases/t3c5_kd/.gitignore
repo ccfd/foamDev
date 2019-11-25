@@ -1,0 +1,19 @@
+# ignored stuff
+*.gz
+log.*
+postProcessing
+*~
+processor*
+[0-9]*
+[0-9]*.[0-9]*
+!0.org
+constant/extendedFeatureEdgeMesh
+*.eMesh
+constant/polyMesh/*
+constant/cellToRegion
+*.OpenFOAM
+
+# force keep 
+!constant/polyMesh/blockMeshDict
+!constant/boundaryData/**/[0-9]*
+!constant/boundaryData/**/[0-9]*.[0-9]*

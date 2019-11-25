@@ -1,0 +1,17 @@
+  type H12;
+  libs ("libH12FunctionObject.so");
+  writeControl writeTime;
+  patch AD;
+  limitType linFuncX;
+  dy 0.00001;
+  constCoeff
+  {
+    limit 0.012;
+  };
+  linFuncXCoeff
+  {
+    A 0.03333;
+    B 0.002;
+  };
+  deltaStar yes;
+  theta yes;

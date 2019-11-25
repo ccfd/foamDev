@@ -1,0 +1,90 @@
+libs            ("libsampling.so");
+type            sets;
+writeControl    writeTime;
+interpolationScheme cellPoint;
+setFormat       raw;
+sets
+(
+    x=03
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.09 0.0 0);
+        end (0.09 0.012 0);
+        nPoints 50;
+    }
+
+    x=04
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.12 0.0 0);
+        end (0.12 0.012 0);
+        nPoints 50;
+    }
+
+    x=05
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.15 0.0 0);
+        end (0.15 0.012 0);
+        nPoints 50;
+    }
+
+    x=06
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.18 0.0 0);
+        end (0.18 0.012 0);
+        nPoints 50;
+    }
+
+    x=07
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.21 0.0 0);
+        end (0.21 0.012 0);
+        nPoints 50;
+    }
+
+    x=08
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.24 0.0 0);
+        end (0.24 0.012 0);
+        nPoints 50;
+    }
+
+    y=04
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.08242 0.0119 0);
+        end (0.24224 0.0119 0);
+        nPoints 100;
+    }
+
+    AB
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.060000000001 0 0);
+        end (0.060000000001 0.01 0);
+        nPoints 100;
+    }
+
+    BC
+    {
+        type lineUniform;
+        axis xyz;
+        start (0.06 0.0099 0);
+        end (0.3 0.0399 0);
+        nPoints 100;
+    }
+);
+
+fields (p U k);
